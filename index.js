@@ -1,5 +1,7 @@
 const http = require("node:http");
 
+const { Buffer } = require("node:buffer");
+
 const IP = "127.0.0.1";
 const PORT = 5000;
 
@@ -16,9 +18,10 @@ const server = http.createServer((request, response) => {
     request.on("data", (chunk) => {
       chunks.push(chunk);
     });
-    request.on("end", (chunk) => {
+    request.on("end", () => {
+      console.log(chunks);
       const data = Buffer.concat(chunks);
-      console.log(data);
+      console.log(data.toString());
       console.log(JSON.parse(data));
     });
 
