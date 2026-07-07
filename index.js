@@ -1,9 +1,13 @@
 const http = require("node:http");
-
+const { randomBytes } = require("node:crypto");
 const { Buffer } = require("node:buffer");
 
 const IP = "127.0.0.1";
 const PORT = 5000;
+
+function getLinkCode() {
+  return randomBytes(99).toString("base64url");
+}
 
 const server = http.createServer((request, response) => {
   const url = request.url;
@@ -13,6 +17,8 @@ const server = http.createServer((request, response) => {
     response.statusCode = 200;
     response.setHeader("Content-Type", "text/plain; charset=utf-8");
     response.end("Привет, вы на главной странице");
+
+    console.log(generateCryptoString());
   } else if (url === "/shorten" && method === "POST") {
     const chunks = [];
     request.on("data", (chunk) => {
