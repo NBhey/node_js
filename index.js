@@ -6,7 +6,7 @@ const IP = "127.0.0.1";
 const PORT = 5000;
 
 function getLinkCode() {
-  return randomBytes(99).toString("base64url");
+  return randomBytes(4).toString("base64url");
 }
 
 const server = http.createServer((request, response) => {
@@ -18,7 +18,7 @@ const server = http.createServer((request, response) => {
     response.setHeader("Content-Type", "text/plain; charset=utf-8");
     response.end("Привет, вы на главной странице");
 
-    console.log(generateCryptoString());
+    console.log(getLinkCode());
   } else if (url === "/shorten" && method === "POST") {
     const chunks = [];
     request.on("data", (chunk) => {
