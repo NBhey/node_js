@@ -28,7 +28,7 @@ const server = http.createServer((request, response) => {
       chunks.push(chunk);
     });
 
-    request.on("end", () => {
+    request.on("end", async () => {
       try {
         const data = Buffer.concat(chunks);
         json = JSON.parse(data);
@@ -46,16 +46,25 @@ const server = http.createServer((request, response) => {
         const collectionString = JSON.stringify(
           Object.fromEntries(codeCollection),
         );
-        fs.writeFile(
-          "redirect_url_collection.txt",
-          collectionString,
-          (error) => {
-            if (error) {
-              throw error;
-            }
-            console.log("Файл сохранен");
-          },
-        );
+
+        try {
+          await fs.promises.writeFile(
+            "redirect_url_collection.txt",
+            collectionString,
+          );
+
+          response.statusCode = 201;
+          response.setHeader("Content-Type", "text/plain; charset=utf-8");
+          response.end(
+            "Ваш сокращенный адрес для перехода " +
+              "http://localhost:5000/" +
+              linkCode,
+          );
+        } catch (error) {
+          response.statusCode = 500;
+          response.setHeader("Content-Type", "text/plain; charset=utf-8");
+          response.end("Ошибка на сервере, файл не сохранен");
+        }
       } else {
         response.statusCode = 422;
         response.setHeader("Content-Type", "text/plain; charset=utf-8");
@@ -63,14 +72,6 @@ const server = http.createServer((request, response) => {
 
         return;
       }
-
-      response.statusCode = 201;
-      response.setHeader("Content-Type", "text/plain; charset=utf-8");
-      response.end(
-        "Ваш сокращенный адрес для перехода " +
-          "http://localhost:5000/" +
-          linkCode,
-      );
     });
   } else if (codeCollection.has(url.slice(1)) && method === "GET") {
     response
